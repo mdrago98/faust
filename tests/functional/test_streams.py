@@ -191,22 +191,6 @@ async def test_stream_over_iterable(app):
 
 
 @pytest.mark.asyncio
-async def test_stream_filter(app):
-    i = 0
-    values = [1000, 3000, 99, 5000, 3, 9999]
-
-    def myfilter(value):
-        return value > 1000
-
-    async with app.stream(values).filter(myfilter) as s:
-        async for value in s:
-            i += 1
-            assert value > 1000
-
-    assert i == 3
-
-
-@pytest.mark.asyncio
 async def test_stream_filter__async(app):
     i = 0
     values = [1000, 3000, 99, 5000, 3, 9999]
@@ -229,10 +213,15 @@ async def test_stream_filter_acks_filtered_out_messages(app, event_loop):
      messages regardless of the ack setting.
     """
     values = [1000, 3000, 99, 5000, 3, 9999]
-    async with app.stream(values).filter(lambda x: x > 1000) as stream:
-        async for event in stream.events():
+    async with app.stream(values) as s:
+        assert len(list(s.channel._it)) == 6
+
+        async for event in s.noack().filter(lambda x: x > 1000).events():
             assert event.value > 1000
-    assert len(app.consumer.unacked) == 0
+            await s.ack(event)
+        assert len(list(s.channel._it)) == 0
+        assert len(app.consumer.unacked) == 0
+        assert s.current_event is None
 
 
 @pytest.mark.asyncio

@@ -64,7 +64,6 @@ def setup_prometheus_sensors(
             "Name prefix is not supplied. Using the name %s from App config.",
             app_conf_name,
         )
-<<<<<<< HEAD
         name_prefix = app_conf_name
     if "-" in name_prefix:
         name_prefix = name_prefix.replace("-", "_")
@@ -74,17 +73,6 @@ def setup_prometheus_sensors(
             " Using %s as a name_prefix.",
             name_prefix,
         )
-=======
-        if "-" in app_conf_name:
-            name_prefix = app_conf_name.replace("-", "_")
-            app.logger.warning(
-                "App config name %s does not conform to"
-                " Prometheus naming conventions."
-                " Using %s as a name_prefix.",
-                app_conf_name,
-                name_prefix,
-            )
->>>>>>> 03a2efba2460f0fa9f3b66c13c49a6d584352ce4
 
     faust_metrics = FaustMetrics.create(registry, name_prefix)
     app.monitor = PrometheusMonitor(metrics=faust_metrics)
